@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="OIP.jpg" type="image/png">
+  <title>Virtual World</title>
+</head>
+<style>
+  *{
+    font-family: 'IM Fell English SC', serif;
+  }
+  body {
+    background-color: darkslategray;
+  }
+
+  input {
+    outline: none;
+    font-size: 15px;
+  }
+
+  .logo {
+    font-weight: 700;
+    font-size: 39px;
+    margin: 3% 6% 1%;
+    text-align: center;
+  }
+
+  #movies {
+    z-index: 2;
+    width: 508px;
+    height: 200px;
+    overflow: auto;
+    position: absolute;
+    left: 30%;
+    border-top: none;
+  }
+
+  #movie {
+    margin-left: 30%;
+    width: 500px;
+    height: 25px;
+    font-size: 19px;
+  }
+  .searchdiv{
+     display: flex;
+
+  }
+  .searchdiv > img{
+    height: 500px;
+    margin: 2%;
+  }
+  .textpart{
+     margin-top: 5%;
+     font-size: 20px;
+     color:floralwhite;
+  }
+  
+ #movies::-webkit-scrollbar{
+   width: 0;
+ }
+ #popural{
+   display: grid;
+   grid-template-columns: repeat(5,20%);
+   gap: 10px;
+   margin: 2% 0% 0% 1%;
+ 
+
+ }
+
+ .popu> img{
+   width: 200px;
+
+ }
+ .popu:hover{
+   color:darkorange;
+   
+ }
+ .textt{
+     width:200px;
+    text-align: center;
+ }
+ 
+
+</style>
+
+<body>
+  <nav id="nav">
+    <div class="logo">Virtual World</div>
+    <div>
+      <input oninput="debounce(main,1000)" type="text" id="movie" placeholder="Enter movie name" />
+      <div id="movies"></div>
+    </div>
+  </nav>
+  <div id="listc"></div>
+  <h2 style="margin-left: 2%">Popular Movies</h2>
+  <div id="popural"></div>
+
+</body>
+<script>
+
+  var timerId;
+  let movie_div = document.getElementById("movies");
+  let listc = document.getElementById("listc");
+  let post = document.getElementById("popural");
+
+  async function searchmovies(movie_name) {
+    try {
+      let res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=d6f6fb69be5a35406e01700ea300d8c3&language=en-US&query=${movie_name}&page=1`)
+      let data = await res.json();
+      // console.log('data:', data)
+
+      return data;
+    }
+    catch (e) {
+      console.log('e:', e)
+
+    }
+  }
+
+  function appendMovies(movies) {
+
+
+    movie_div.innerHTML = null;
+    
+    movies.forEach(function (movie) {
+
+      
+      let div = document.createElement("div");
+      div.style.background = "darkslategray";
+      div.style.display = "flex";
+      div.addEventListener("click", () => {
+        list(movie);
+        movie_div.innerHTML = null;
+      })
+
+      let div2 = document.createElement("div");
+      div2.style.width = "250px";
+
+      let img = document.createElement("img");
+      img.src = "https://image.tmdb.org/t/p/w500" + movie.poster_path;
+      img.style.width = "150px";
+      img.style.height = "110px";
+
+      let p = document.createElement("p");
+      p.innerText = "Name:" + movie.title;
+      p.style.marginLeft = '2%';
+
+      let p1 = document.createElement("p");
+      p1.innerText = "Released-On:" + movie.release_date;
+      p1.style.marginLeft = '2%';
+
+      let p2 = document.createElement("p");
+      p2.innerText = "Rating:" + movie.vote_average + "/10";
+      p2.style.marginLeft = '2%';
+
+      div2.append(p, p1, p2);
+      div.append(img, div2)
+      movie_div.append(div);
+
+    });
+  }
+  async function main() {
+    let name = document.getElementById("movie").value;
+
+    let res = await searchmovies(name);
+    // console.log('res:', res)
+
+    let movies_data = res.results;
+    // console.log('movies_data:', movies_data)
+
+
+    appendMovies(movies_data);
+
+    // console.log("res:", res);
+
+  }
+
+  function debounce(func, delay) {
+
+    if (timerId) {
+      clearInterval(timerId);
+    }
+    timerId = setTimeout(function () {
+      func();
+    }, delay);
+  }
+
+  function list(mov) {
+
+    listc.innerHTML = null;
+
+    let div = document.createElement("div");
+    div.setAttribute("class", "searchdiv");
+
+    let img = document.createElement("img");
+    img.src = "https://image.tmdb.org/t/p/w500" + mov.poster_path;
+
+    let div2 = document.createElement("div");
+    div2.setAttribute("class", "textpart")
+
+    let p = document.createElement("p");
+    p.innerText = "Name:- " + mov.title;
+
+    let p11 = document.createElement("p");
+    p11.innerText = "Details:- " + mov.overview;
+
+    let p1 = document.createElement("p");
+    p1.innerText = "Released-On:- " + mov.release_date;
+
+
+    let p2 = document.createElement("p");
+    p2.innerText = "Rating:- " + mov.vote_average + "/10";
+
+    div2.append(p,p11,p1,p2)
+    div.append(img,div2)  
+
+    listc.append(div);
+
+  }
+
+
+  async function popularMovies() {
+    try {
+      let res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=d6f6fb69be5a35406e01700ea300d8c3&language=en-US&page=1&region=IN`)
+      let data = await res.json();
+      console.log('data:', data)
+        popMov(data.results);
+      
+    }
+    catch (e) {
+      console.log('e:', e)
+
+    }
+  }
+
+
+  function popMov(pop){
+
+    pop.forEach(function(popp){
+
+    let div = document.createElement("div");
+    div.setAttribute("class", "popu")
+    div.addEventListener("click",()=>{
+         list(popp);
+    })
+     
+
+    let img = document.createElement("img");
+    img.src = "https://image.tmdb.org/t/p/w500" + popp.poster_path;
+
+    let div2 = document.createElement("div");
+    div2.setAttribute("class","textt");
+    
+
+    let p = document.createElement("p");
+    p.innerText =  popp.original_title;
+
+    let p1 = document.createElement("p");
+    p1.innerText = popp.release_date;
+
+    let p2 = document.createElement("p");
+    p2.innerText = "Rating:- " + popp.vote_average + "/10";
+
+    div2.append(p,p1,p2);
+    div.append(img,div2);
+    post.append(div)
+  });
+  }
+  
+ popularMovies();
+</script>
+
+</html>
